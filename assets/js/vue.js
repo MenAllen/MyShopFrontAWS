@@ -52,41 +52,54 @@ const UserSettings = {
 	methods: {
 		// signin: Connection et récupération des infos du username dans localStorage
 		signin() {
+
 			axios.post(ADDRAWS + "api/user/login", {
-					username: this.username,
-					password: this.password,
-				})
-				.then((response) => {
-					localStorage.setItem("token", response.data.token);
-					localStorage.setItem("userId", response.data.userId);
-					localStorage.setItem("username", this.username);
-					localStorage.setItem("email", response.data.email);					
-					localStorage.setItem("isAdmin", response.data.isAdmin);
-					localStorage.setItem("status", 'connected');
-					this.notyf.success(this.username + " connected");
-					document.getElementById("form-signin").reset();
-					document.querySelector(".fa-user").style.color = "rgb(0,128,0)";
-					this.$router.push("/display-carts");
-				})
-        .catch(err => {
-          this.notyf.error("Connexion failed" + err.response.status + " " + err.response.statusText);
-        })
+				username: this.username,
+				password: this.password,
+			})
+			.then((response) => {
+				localStorage.setItem("token", response.data.token);
+				localStorage.setItem("userId", response.data.userId);
+				localStorage.setItem("username", this.username);
+				localStorage.setItem("email", response.data.email);					
+				localStorage.setItem("isAdmin", response.data.isAdmin);
+				localStorage.setItem("status", 'connected');
+				this.notyf.success(this.username + " connected");
+				document.getElementById("form-signin").reset();
+				document.querySelector(".fa-user").style.color = "rgb(0,128,0)";
+				this.$router.push("/display-carts");
+			})
+			.catch(err => {
+				this.notyf.error("Connexion failed" + err.response.status + " " + err.response.statusText);
+			})
+
 		},
+
 		// signup: Création d'un nouvel user dans la base
     signup() {
-      axios.post(ADDRAWS + 'api/user/signup', {
-        username: this.username,
-        email: this.email,
-        password: this.password,
-      })
-      .then(() => {
-				this.notyf.success("User " + this.username + " created");
+
+			if (this.password === this.passwordBis) {
+
+				axios.post(ADDRAWS + 'api/user/signup', {
+					username: this.username,
+					email: this.email,
+					password: this.password,
+				})
+				.then(() => {
+					this.notyf.success("User " + this.username + " created");
+					document.getElementById("form-signup").reset();
+				})
+				.catch(err => {
+					this.notyf.error("Erreur Signup " + err.response.status);
+				})
+
+			} else {
 				document.getElementById("form-signup").reset();
-      })
-      .catch(err => {
-        this.notyf.error("Erreur Signup " + err.response.status);
-      })
+				this.notyf.error("incohérence de passwords")
+			}
 		},
+
+		//signout: Déconnexion d'un user
 		signout() {
       axios.post(ADDRAWS + 'api/user/signout', {
         username: this.username
@@ -188,7 +201,6 @@ const DisplayCarts = {
 			})
 			.then(response => { 
 				this.products = response.data.results;
-				console.log(this.products);
 			})
 			.catch(err => {
 				this.notyf.error("Erreur Display " + err.response.status + " " + err.response.statusText);
